@@ -7,7 +7,8 @@
 # Licensed under the MIT License.
 #
 # =================================================================
-from dagster import StaticPartitionsDefinition
+
+from dagster import StaticPartitionsDefinition, get_dagster_logger
 import requests
 from typing import List
 import logging
@@ -21,7 +22,7 @@ def load_us_counties() -> List[str]:
     url = "https://reference.geoconnex.us/collections/counties/items"
     params = {"limit": 100}
     counties = []
-    
+    get_dagster_logger().debug(url)
     while True:
         response = requests.get(url, params=params)
         response.raise_for_status()
@@ -40,5 +41,5 @@ def load_us_counties() -> List[str]:
     return sorted(counties)
 
 county_partitions = StaticPartitionsDefinition(
-    load_us_counties()
+   load_us_counties()
 )

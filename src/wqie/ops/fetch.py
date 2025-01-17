@@ -1,36 +1,54 @@
-from dagster import op
-from typing import List, Dict, Any
-from wqie.models import Station, StationsData
+# =================================================================
+#
+# Authors: Ben Webb <bwebb@lincolninst.edu>
+#
+# Copyright (c) 2025 Lincoln Institute of Land Policy
+#
+# Licensed under the MIT License.
+#
+# =================================================================
 
-def clean_word(text: str) -> str:
-    return text.strip().replace('\n', ' ').replace('\r', '')
+from dagster import op, Out
+from io import BytesIO
+import requests
+from typing import Dict, Any, List
+import csv
 
-def extract_coord(value: str) -> float:
-    try:
-        return float(value)
-    except (ValueError, TypeError):
-        return 0.0
+from wqie.env import RESULTS_URL, STATION_URL
 
-@op
-def transform_stations(stations: List[Dict[str, Any]]) -> StationsData:
+
+@op(out={"sites": Out(list)})
+def fetch_station_metadata( county: str) -> List[Dict[str, Any]]:
     """
-    Transform raw station data into structured format.
+    Fetch station metadata for a single county.
     """
-    transformed_stations = []
+    params = {
+        'countycode': [county],
+        'mimeType': 'csv',
+        'startDateLo': '01-01-2023',
+        'dataProfile': 'resultPhysChem'
+    }
+    response = requests.get(RESULTS_URL, params=params)
+    response.raise_for_status()
     
-    for row in stations:
-        station = Station(
-            station_id=row['MonitoringLocationIdentifier'],
-            name=clean_word(row['MonitoringLocationName']),
-            description=clean_word(row['MonitoringLocationName']),
-            longitude=extract_coord(row['LongitudeMeasure']),
-            latitude=extract_coord(row['LatitudeMeasure']),
-            state_code=row['StateCode'],
-            county_code=row['CountyCode'],
-            huc_code=row['HUCEightDigitCode'],
-            provider=row['ProviderName'],
-            datastreams=[]
-        )
-        transformed_stations.append(station)
+    stations = []
+    for row in csv.DictReader(response.text.splitlines()):
+        stations.append(row)
+    return stations
+
+@op(out={"station_details": Out(list)})
+def fetch_site_metadata(site_ids: List[str]) -> List[Dict[str, Any]]:
+    """
+    Fetch detailed site metadata for a set of sites.
+    """
+    params = {
+        'siteid': site_ids,
+        'mimeType': 'csv'
+    }
+    response = requests.post(STATION_URL, data=params)
+    response.raise_for_status()
     
-    return StationsData(stations=transformed_stations)
+    details = []
+    for row in csv.DictReader(response.text.splitlines()):
+        details.append(row)
+    return details

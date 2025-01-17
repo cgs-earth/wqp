@@ -67,6 +67,7 @@ requests==2.32.3
 requests-toolbelt==1.0.0
 rich==13.9.4
 setuptools==75.8.0
+shapely==2.0.6
 six==1.17.0
 slack-sdk==3.34.0
 sniffio==1.3.1
@@ -87,4 +88,5 @@ uvloop==0.21.0
 watchdog==5.0.3
 watchfiles==1.0.4
 websockets==14.1
+-e file:///Users/benwebb/Library/CloudStorage/OneDrive-LincolnInstituteofLandPolicy/Documents/GitHub/cgs-earth/wqie
 yarl==1.18.3

@@ -1,14 +1,21 @@
 services:
   wqie-frost:
     container_name: wqie-frost
-    build:
-      context: ./docker/frost
+    image: hylkevds/frost-http-waterquality:latest
+    platform: linux/amd64
     environment:
       - serviceRootUrl=${WQIE_URL}/FROST-Server
       - persistence_db_url=jdbc:postgresql://wqie-database:5432/sensorthings
       - persistence_db_username=sensorthings
       - persistence_db_password=ChangeMe
+      - plugins_multiDatastream_enable=false
+      - http_cors_enable=true
+      - http_cors_allowed_origins=*
+      - persistence_db_driver=org.postgresql.Driver
       - persistence_autoUpdateDatabase=true
+      - persistence_idGenerationMode=ServerAndClientGenerated
+      - plugins_coreModel_idType=STRING
+      - mqtt_Enabled=false
     depends_on:
       - wqie-database
 
