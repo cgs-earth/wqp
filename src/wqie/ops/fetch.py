@@ -9,7 +9,6 @@
 # =================================================================
 
 from dagster import op, Out
-from io import BytesIO
 import requests
 from typing import Dict, Any, List
 import csv
@@ -18,7 +17,7 @@ from wqie.env import RESULTS_URL, STATION_URL
 
 
 @op(out={"sites": Out(list)})
-def fetch_station_metadata( county: str) -> List[Dict[str, Any]]:
+def fetch_station_metadata(county: str) -> List[Dict[str, Any]]:
     """
     Fetch station metadata for a single county.
     """
@@ -30,11 +29,12 @@ def fetch_station_metadata( county: str) -> List[Dict[str, Any]]:
     }
     response = requests.get(RESULTS_URL, params=params)
     response.raise_for_status()
-    
+
     stations = []
     for row in csv.DictReader(response.text.splitlines()):
         stations.append(row)
     return stations
+
 
 @op(out={"station_details": Out(list)})
 def fetch_site_metadata(site_ids: List[str]) -> List[Dict[str, Any]]:
@@ -47,7 +47,7 @@ def fetch_site_metadata(site_ids: List[str]) -> List[Dict[str, Any]]:
     }
     response = requests.post(STATION_URL, data=params)
     response.raise_for_status()
-    
+
     details = []
     for row in csv.DictReader(response.text.splitlines()):
         details.append(row)

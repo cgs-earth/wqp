@@ -8,7 +8,6 @@
 #
 # =================================================================
 
-import logging
 from dagster import op, get_dagster_logger
 from typing import List, Dict, Any
 import requests
@@ -29,13 +28,14 @@ def upsert_collection_item(collection: str, item: Dict[str, Any]) -> bool:
     response = requests.post(api_url, json=item)
     return response.status_code == 201  # Return True if creation is successful
 
+
 @op
 def transform_stations(stations: List[Dict[str, Any]]) -> StationsData:
     """
     Transform raw station data into structured format.
     """
     transformed_stations = []
-    
+
     for row in stations:
         station = Station(
             station_id=row['MonitoringLocationIdentifier'],
@@ -50,27 +50,28 @@ def transform_stations(stations: List[Dict[str, Any]]) -> StationsData:
             datastreams=[]
         )
         transformed_stations.append(station)
-    
+
     return StationsData(stations=transformed_stations)
+
 
 @op
 def publish_station_collection(stations_data: StationsData) -> None:
     """
     Publishes station collection to API config and backend.
-    
+
     Takes in the transformed station data and sends it to the SensorThings API.
-    
+
     :param stations_data: The transformed station data.
     :returns: `None`
     """
     # Iterate over the transformed stations data
     for station in stations_data.stations:
         station_identifier = station.station_id
-        
+
         try:
             datastreams = load_datastreams(station_identifier)
         except Exception:
-            LOGGER.warning(f"Failed to load datastreams for {station_identifier}")
+            LOGGER.warning(f"Failed to load datastreams for {station_identifier}") # noqa
             continue
 
         try:
@@ -100,9 +101,9 @@ def publish_station_collection(stations_data: StationsData) -> None:
             }],
             'properties': {
                 'mainstem': mainstem,
-                'hu08': url_join(GEOCONNEX_URL, 'ref/hu08', station.huc_code),
-                'state': url_join(GEOCONNEX_URL, 'ref/states', station.state_code),
-                'county': url_join(GEOCONNEX_URL, 'ref/counties', f"{station.state_code}{station.county_code}"),
+                'hu08': url_join(GEOCONNEX_URL, 'ref/hu08', station.huc_code), # noqa
+                'state': url_join(GEOCONNEX_URL, 'ref/states', station.state_code), # noqa
+                'county': url_join(GEOCONNEX_URL, 'ref/counties', f"{station.state_code}{station.county_code}"), # noqa
                 'provider': station.provider
             },
             'Datastreams': list(datastreams)
@@ -117,6 +118,7 @@ def publish_station_collection(stations_data: StationsData) -> None:
     # setup_collection(meta=gcm())  # Uncomment if required
 
     return
+
 
 def get_mainstem_uri(id):
     # Convert the input geom to GeoJSON using Shapely

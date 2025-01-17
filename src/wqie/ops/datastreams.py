@@ -1,18 +1,19 @@
-import logging
+
 from csv import DictReader
 from datetime import datetime
 from io import StringIO
 from pytz import timezone
 import re
 from requests import Session
-from typing import Iterable, Dict, List
-from dagster import op, job, Out, get_dagster_logger
+from typing import Iterable
+from dagster import get_dagster_logger
 
 from wqie.env import RESULTS_URL, NLDI_URL
 from wqie.util import make_uuid, url_join
 from wqie.mapping import MAPPING
 
 LOGGER = get_dagster_logger()
+
 
 def fetch_datastreams(station_id: str):
     """
@@ -59,7 +60,10 @@ def yield_datastreams(station_identifier: str,
         kwargs = {}
         monitoring_location_identifier = \
             dataset['MonitoringLocationIdentifier']
-        url = url_join(NLDI_URL, "linked-data/wqp", monitoring_location_identifier)
+        url = url_join(
+            NLDI_URL,
+            "linked-data/wqp",
+            monitoring_location_identifier)
         try:
             result = http.get(url)
             feature = result.json()['features'][0]

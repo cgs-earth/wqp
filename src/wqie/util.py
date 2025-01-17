@@ -4,6 +4,7 @@ import hashlib
 from typing import Union, Any
 from uuid import UUID
 
+
 def get_typed_value(value) -> Union[float, int, str]:
     """
     Derive true type from data value
@@ -24,6 +25,7 @@ def get_typed_value(value) -> Union[float, int, str]:
         value2 = value
 
     return value2
+
 
 def extract_coord(p):
     """
@@ -46,6 +48,7 @@ def clean_word(input: str, delim: str = ' ') -> str:
     """
     return delim.join(re.findall(r'\w+', input))
 
+
 def url_join(*parts: str) -> str:
     """
     helper function to join a URL from a number of parts/fragments.
@@ -61,6 +64,7 @@ def url_join(*parts: str) -> str:
 
     return '/'.join([str(p).strip().strip('/') for p in parts]).rstrip('/')
 
+
 def get_env(key: str, fallback: Any = None) -> str:
     """Fetch environment variable"""
     val = os.environ.get(key, fallback)
@@ -68,6 +72,7 @@ def get_env(key: str, fallback: Any = None) -> str:
         raise Exception(f"Missing ENV var: {key}")
 
     return val
+
 
 def make_uuid(input: str, raw: bool = False) -> UUID:
     """
