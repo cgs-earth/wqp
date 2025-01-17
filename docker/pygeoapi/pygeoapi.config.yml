@@ -1,0 +1,159 @@
+server:
+  bind:
+    host: "0.0.0.0"
+    port: 80
+  url: ${API_URL}
+  cors: true
+  mimetype: "application/json; charset=UTF-8"
+  encoding: "utf-8"
+  languages:
+    - "en-US"
+  pretty_print: false
+  limit: 10000
+  map:
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    attribution: '<a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+  templates:
+    path: "/pygeoapi/pygeoapi/templates"
+logging:
+  level: "ERROR"
+metadata:
+  identification:
+    title:
+      en: "HubKit in a box"
+    description:
+      en: |
+        HubKit provides a platform for organizations to integrate their
+        data holdings and publish them according to Internet of Water
+        principles and Spatial Data on the Web Best Practices with
+        plug-and-play capability supporting data access through OGC
+        API standards and data discovery through geoconnex.us.
+        It leverages several open source projects, including
+        pygeoapi, FROST-Server, and the WMO wis2box.
+    keywords:
+      en:
+        - "hubkit"
+        - "hub2box"
+        - "wis2box"
+    keywords_type: "theme"
+    terms_of_service: "https://creativecommons.org/licenses/by/4.0/"
+    url: "https://github.com/internetofwater/"
+  license:
+    name: "CC-BY 4.0 license"
+    url: "https://creativecommons.org/licenses/by/4.0/"
+  provider:
+    name: "Center for Geospatial Solutions"
+    url: "http://cgs.earth/"
+  contact:
+    name: "Webb, Benjamin"
+    position: "Software Developer"
+    address: "113 Brattle St"
+    city: "Cambridge"
+    stateorprovince: "Massachussetts"
+    postalcode: "02138"
+    country: "USA"
+    email: "bwebb@lincolninst.edu"
+    url: "https://internetofwater.org"
+    role: "pointOfContact"
+resources:
+  things:
+    type: "collection"
+    title: "Things"
+    description: "SensorThings API Things"
+    keywords:
+      - "thing"
+      - "oregon"
+    extents:
+      spatial:
+        bbox:
+          [
+            -124.55417836738366,
+            41.99161889477894,
+            -116.46390970729706,
+            46.26801803457034,
+          ]
+        crs: "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+    providers:
+      - type: "feature"
+        name: "SensorThings"
+        data: ${API_BACKEND_URL}
+        entity: Things
+        id_field: "@iot.id"
+        title_field: "name"
+        intralink: true
+    links:
+      - type: "text/html"
+        rel: "canonical"
+        title: "information"
+        href: "https://gis.wrd.state.or.us/server/rest/services"
+      - type: "text/html"
+        rel: "canonical"
+        title: "information"
+        href: "https://gis.wrd.state.or.us/server/sdk/rest/index.html#/02ss00000029000000"
+  datastreams:
+    type: "collection"
+    title: "Datastreams"
+    description: "SensorThings API Datastreams"
+    keywords:
+      - "datastream"
+      - "dam"
+    extents:
+      spatial:
+        bbox:
+          [
+            -124.55417836738366,
+            41.99161889477894,
+            -116.46390970729706,
+            46.26801803457034,
+          ]
+        crs: "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+    providers:
+      - type: "feature"
+        name: "SensorThings"
+        data: ${API_BACKEND_URL}
+        entity: Datastreams
+        id_field: "@iot.id"
+        title_field: "name"
+        intralink: true
+        expand: Thing/Locations,Observations($select=@iot.id;$orderby=phenomenonTime desc;$top=1),Observations/FeatureOfInterest($select=feature),Sensor,ObservedProperty
+        storage_crs: http://www.opengis.net/def/crs/EPSG/0/3857
+    links:
+      - type: "text/html"
+        rel: "canonical"
+        title: "information"
+        href: "https://gis.wrd.state.or.us/server/rest/services"
+      - type: "text/html"
+        rel: "canonical"
+        title: "information"
+        href: "https://gis.wrd.state.or.us/server/sdk/rest/index.html#/02ss00000029000000"
+  observations:
+    type: "collection"
+    title: "Observations"
+    description: "SensorThings API Observations"
+    keywords:
+      - "observation"
+      - "dam"
+    extents:
+      spatial:
+        bbox:
+          [
+            -124.55417836738366,
+            41.99161889477894,
+            -116.46390970729706,
+            46.26801803457034,
+          ]
+        crs: "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+    providers:
+      - type: "feature"
+        name: "SensorThings"
+        data: ${API_BACKEND_URL}
+        entity: Observations
+        id_field: "@iot.id"
+        time_field: "resultTime"
+        intralink: true
+        storage_crs: http://www.opengis.net/def/crs/EPSG/0/3857
+    links:
+      - type: "text/html"
+        rel: "canonical"
+        title: "information"
+        href: "https://gis.wrd.state.or.us/server/rest/services"

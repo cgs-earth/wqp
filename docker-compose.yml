@@ -1,0 +1,95 @@
+services:
+  wqie-frost:
+    container_name: wqie-frost
+    build:
+      context: ./docker/frost
+    environment:
+      - serviceRootUrl=${WQIE_URL}/FROST-Server
+      - persistence_db_url=jdbc:postgresql://wqie-database:5432/sensorthings
+      - persistence_db_username=sensorthings
+      - persistence_db_password=ChangeMe
+      - persistence_autoUpdateDatabase=true
+    depends_on:
+      - wqie-database
+
+  wqie-database:
+    container_name: wqie-database
+    build:
+      context: ./docker/database
+    environment:
+      - POSTGRES_DB=sensorthings
+      - POSTGRES_USER=sensorthings
+      - POSTGRES_PASSWORD=ChangeMe
+    volumes:
+      - postgis_volume:/var/lib/postgresql/data
+
+  wqie-pygeoapi:
+    container_name: wqie-pygeoapi
+    build:
+      context: docker/pygeoapi
+    depends_on:
+      - wqie-frost
+    environment:
+      - API_URL=${WQIE_URL}/oapi
+      - API_BACKEND_URL=http://wqie-frost:8080/FROST-Server/v1.1
+      - SCRIPT_NAME=/oapi
+
+  wqie-ui:
+    image: internetofwater/hub2box-ui:iow
+    container_name: wqie-ui
+    depends_on:
+      - wqie-pygeoapi
+    environment:
+      - WIS2BOX_URL=${WQIE_URL}
+      - WIS2BOX_API_URL=${WQIE_URL}/oapi
+      - serviceRootUrl=${WQIE_URL}/FROST-Server
+
+  wqie-proxy:
+    container_name: wqie-proxy
+    build:
+      context: docker/nginx
+    restart: always
+    depends_on:
+      - wqie-ui
+    ports:
+      - 8888:80
+
+  wqie-dagster:
+    container_name: wqie-dagster
+    build:
+      # have to use . as context so we can get requirements.txt in the context but
+      # also have it at the root for local dev
+      context: .
+      dockerfile: ./docker/dagster/Dockerfile
+    ports:
+      - 3000:3000
+    restart: always
+    environment:
+      - SLACK_BOT_TOKEN
+    deploy:
+      resources:
+        limits:
+          cpus: "7"
+          memory: 1GB
+
+    # only spin up the docker container for dagster if we are in production
+    # otherwise we want to use uv with hot reloading using dagster dev
+    profiles: [production]
+
+  wqie-container-monitor:
+    build:
+      context: ./docker/container_monitor
+    container_name: wqie-container-monitor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - SLACK_BOT_TOKEN
+      # NOTE, no # needed here
+      - SLACK_CHANNEL_NAME=cgs-iow-bots
+      - SLACK_BOT_NAME=Water Quality Interoperability Experiment bot
+      - SLACK_BOT_AVATAR=https://cida.usgs.gov/wsgi/ngwmn_ui/static/img/provider_logos/owrd_logo.50b3448a.png
+    # Don't monitor containers in the dev env or CI/CD
+    profiles: [production]
+
+volumes:
+  postgis_volume:
