@@ -9,7 +9,7 @@
 # =================================================================
 
 from dagster import job, op
-from wqie.ops.fetch import fetch_station_metadata, fetch_site_metadata
+from wqie.ops.fetch import fetch_site_metadata
 from wqie.ops.transform import transform_stations, publish_station_collection
 from wqie.partitions import county_partitions
 
@@ -22,10 +22,7 @@ def fetch_and_process_stations(context):
     county = context.partition_key
 
     # Fetch and process data
-    stations = fetch_station_metadata(county)
-    site_details = fetch_site_metadata(
-        [s["MonitoringLocationIdentifier"] for s in stations]
-    )
+    site_details = fetch_site_metadata(county)
     sites = transform_stations(site_details)
     return publish_station_collection(sites)
 
