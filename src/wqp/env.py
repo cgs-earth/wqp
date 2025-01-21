@@ -16,4 +16,4 @@ GEOCONNEX_URL = "https://geoconnex.us"
 NLDI_URL = "https://labs.waterdata.usgs.gov/api/nldi"
 STATION_URL = 'https://www.waterqualitydata.us/data/Station/search'
 RESULTS_URL = 'https://www.waterqualitydata.us/data/Result/search'
-MONITORING_LOCATIONS_URL = "https://www.waterqualitydata.us/data/summary/monitoringLocation/search"
+MONITORING_LOCATIONS_URL = "https://www.waterqualitydata.us/data/summary/monitoringLocation/search" # noqa

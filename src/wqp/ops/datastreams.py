@@ -1,14 +1,12 @@
 
 from csv import DictReader
-from datetime import datetime
 from io import StringIO
-from pytz import timezone
 import re
 from requests import Session
 from typing import Iterable
 from dagster import get_dagster_logger
 
-from wqp.env import MONITORING_LOCATIONS_URL, NLDI_URL
+from wqp.env import MONITORING_LOCATIONS_URL
 from wqp.util import make_uuid, url_join
 from wqp.mapping import MAPPING
 
@@ -96,7 +94,7 @@ def yield_datastreams(datasets: dict) -> Iterable:
             'name': observed_property_name + ' at ' + dataset['MonitoringLocationIdentifier'],  # noqa
             'description': observed_property_name + ' at ' + dataset['MonitoringLocationIdentifier'],  # noqa
             'observationType': 'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement',  # noqa
-            'phenomenonTime': f'{dataset["min_year"]}-01-01T00:00:00Z/{dataset["max_year"]}-12-31T00:00:00Z',
+            'phenomenonTime': f'{dataset["min_year"]}-01-01T00:00:00Z/{dataset["max_year"]}-12-31T00:00:00Z', # noqa
             'unitOfMeasurement': {
                 'name': 'unknown',
                 'symbol': 'unknown',
