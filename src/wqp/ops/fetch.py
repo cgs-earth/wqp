@@ -13,11 +13,11 @@ import requests
 from typing import Dict, Any, List
 import csv
 
-from wqie.env import STATION_URL
+from wqp.env import STATION_URL
 
 
 @op(out={"station_details": Out(list)})
-def fetch_site_metadata(county: str) -> List[Dict[str, Any]]:
+def fetch_station_metadata(county: str) -> List[Dict[str, Any]]:
     """
     Fetch detailed site metadata for a set of sites.
     """
@@ -31,4 +31,5 @@ def fetch_site_metadata(county: str) -> List[Dict[str, Any]]:
     details = []
     for row in csv.DictReader(response.text.splitlines()):
         details.append(row)
+
     return details

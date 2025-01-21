@@ -13,10 +13,10 @@ from typing import List, Dict, Any
 import requests
 
 # Assumed to be defined elsewhere in the project
-from wqie.env import API_BACKEND_URL, GEOCONNEX_URL, NLDI_URL
-from wqie.util import extract_coord, clean_word, url_join
-from wqie.models import Station, StationsData
-from wqie.ops.datastreams import load_datastreams
+from wqp.env import API_BACKEND_URL, GEOCONNEX_URL, NLDI_URL
+from wqp.util import extract_coord, clean_word, url_join
+from wqp.models import Station, StationsData
+from wqp.ops.datastreams import load_datastreams
 
 # Logger setup
 LOGGER = get_dagster_logger()
@@ -37,6 +37,13 @@ def transform_stations(stations: List[Dict[str, Any]]) -> StationsData:
     transformed_stations = []
 
     for row in stations:
+
+        try:
+            float(extract_coord(row['LatitudeMeasure']))
+        except ValueError:
+            LOGGER.debug(extract_coord(row['MonitoringLocationIdentifier']))
+            continue
+
         station = Station(
             station_id=row['MonitoringLocationIdentifier'],
             name=clean_word(row['MonitoringLocationName']),
@@ -69,7 +76,7 @@ def publish_station_collection(stations_data: StationsData) -> None:
         station_identifier = station.station_id
 
         try:
-            datastreams = load_datastreams(station_identifier)
+            datastreams = list(load_datastreams(station_identifier))
         except Exception:
             LOGGER.warning(f"Failed to load datastreams for {station_identifier}") # noqa
             continue
@@ -101,12 +108,13 @@ def publish_station_collection(stations_data: StationsData) -> None:
             }],
             'properties': {
                 'mainstem': mainstem,
+                'uri': url_join(GEOCONNEX_URL, 'iow/wqp', station_identifier),
                 'hu08': url_join(GEOCONNEX_URL, 'ref/hu08', station.huc_code), # noqa
                 'state': url_join(GEOCONNEX_URL, 'ref/states', station.state_code), # noqa
                 'county': url_join(GEOCONNEX_URL, 'ref/counties', f"{station.state_code}{station.county_code}"), # noqa
                 'provider': station.provider
             },
-            'Datastreams': list(datastreams)
+            'Datastreams': datastreams
         }
 
         # Upsert the station feature to the SensorThings API

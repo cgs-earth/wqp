@@ -1,4 +1,4 @@
-FROM hylkevds/frost-http-waterquality
+FROM fraunhoferiosb/frost-server
 
 ENV plugins_multiDatastream_enable=false
 ENV http_cors_enable=true
@@ -6,5 +6,8 @@ ENV http_cors_allowed_origins=*
 ENV persistence_db_driver=org.postgresql.Driver
 ENV persistence_autoUpdateDatabase=true
 ENV persistence_idGenerationMode=ServerAndClientGenerated
+ENV plugins_coreModel_editableDsProperties=true
 ENV plugins_coreModel_idType=STRING
 ENV mqtt_Enabled=false
+ENV bus_sendQueueSize=1000
+ENV bus_sendWorkerPoolSize=3

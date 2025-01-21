@@ -9,15 +9,15 @@
 # =================================================================
 
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 
 class Station(BaseModel):
     station_id: str
     name: str
     description: str
-    longitude: float
-    latitude: float
+    longitude: Optional[float]
+    latitude: Optional[float]
     state_code: str
     county_code: str
     huc_code: str

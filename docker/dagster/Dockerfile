@@ -3,18 +3,18 @@ FROM python:3.12-slim
 
 RUN mkdir -p /opt/dagster/dagster_home /opt/dagster/app
 
-COPY ../requirements.txt requirements.txt
+WORKDIR /opt/dagster/app
 
-RUN pip install -r requirements.txt
+COPY ./requirements.txt /opt/dagster/app/requirements.txt
+COPY ./pyproject.toml /opt/dagster/app/pyproject.toml
 
 ENV DAGSTER_HOME=/opt/dagster/dagster_home/
 
 COPY ../dagster.yaml /opt/dagster/dagster_home/
-COPY ../pyproject.toml /opt/dagster/app/pyproject.toml
 COPY src /opt/dagster/app/src
 
-WORKDIR /opt/dagster/app
+RUN pip install -e .
 
 EXPOSE 3000
 
-ENTRYPOINT ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]
+ENTRYPOINT ["dagster", "dev", "-h", "0.0.0.0"]

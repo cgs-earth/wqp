@@ -1,5 +1,5 @@
 [project]
-name = "wqie"
+name = "wqp"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -22,10 +22,10 @@ dependencies = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src.wqie"]
+packages = ["src.wqp"]
 
 [tool.dagster]
-module_name = "wqie"
+module_name = "wqp"
 
 [tool.pytest.ini_options]
 env_files = [

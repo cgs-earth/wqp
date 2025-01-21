@@ -1450,7 +1450,7 @@ wheels = [
 ]
 
 [[package]]
-name = "wqie"
+name = "wqp"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

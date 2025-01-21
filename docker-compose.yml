@@ -1,26 +1,20 @@
 services:
-  wqie-frost:
-    container_name: wqie-frost
-    image: hylkevds/frost-http-waterquality:latest
+  wqp-frost:
+    container_name: wqp-frost
+    build:
+      context: ./docker/frost
+      dockerfile: Dockerfile
     platform: linux/amd64
     environment:
-      - serviceRootUrl=${WQIE_URL}/FROST-Server
-      - persistence_db_url=jdbc:postgresql://wqie-database:5432/sensorthings
+      - serviceRootUrl=${WQP_URL}/FROST-Server
+      - persistence_db_url=jdbc:postgresql://wqp-database:5432/sensorthings
       - persistence_db_username=sensorthings
       - persistence_db_password=ChangeMe
-      - plugins_multiDatastream_enable=false
-      - http_cors_enable=true
-      - http_cors_allowed_origins=*
-      - persistence_db_driver=org.postgresql.Driver
-      - persistence_autoUpdateDatabase=true
-      - persistence_idGenerationMode=ServerAndClientGenerated
-      - plugins_coreModel_idType=STRING
-      - mqtt_Enabled=false
     depends_on:
-      - wqie-database
+      - wqp-database
 
-  wqie-database:
-    container_name: wqie-database
+  wqp-database:
+    container_name: wqp-database
     build:
       context: ./docker/database
     environment:
@@ -30,39 +24,39 @@ services:
     volumes:
       - postgis_volume:/var/lib/postgresql/data
 
-  wqie-pygeoapi:
-    container_name: wqie-pygeoapi
+  wqp-pygeoapi:
+    container_name: wqp-pygeoapi
     build:
       context: docker/pygeoapi
     depends_on:
-      - wqie-frost
+      - wqp-frost
     environment:
-      - API_URL=${WQIE_URL}/oapi
-      - API_BACKEND_URL=http://wqie-frost:8080/FROST-Server/v1.1
+      - API_URL=${WQP_URL}/oapi
+      - API_BACKEND_URL=http://wqp-frost:8080/FROST-Server/v1.1
       - SCRIPT_NAME=/oapi
 
-  wqie-ui:
-    image: internetofwater/hub2box-ui:iow
-    container_name: wqie-ui
+  wqp-ui:
+    image: hub2box-ui:wqp
+    container_name: wqp-ui
     depends_on:
-      - wqie-pygeoapi
+      - wqp-pygeoapi
     environment:
-      - WIS2BOX_URL=${WQIE_URL}
-      - WIS2BOX_API_URL=${WQIE_URL}/oapi
-      - serviceRootUrl=${WQIE_URL}/FROST-Server
+      - WIS2BOX_URL=${WQP_URL}
+      - WIS2BOX_API_URL=${WQP_URL}/oapi
+      - serviceRootUrl=${WQP_URL}/FROST-Server
 
-  wqie-proxy:
-    container_name: wqie-proxy
+  wqp-proxy:
+    container_name: wqp-proxy
     build:
       context: docker/nginx
     restart: always
     depends_on:
-      - wqie-ui
+      - wqp-ui
     ports:
       - 8888:80
 
-  wqie-dagster:
-    container_name: wqie-dagster
+  wqp-dagster:
+    container_name: wqp-dagster
     build:
       # have to use . as context so we can get requirements.txt in the context but
       # also have it at the root for local dev
@@ -77,16 +71,16 @@ services:
       resources:
         limits:
           cpus: "7"
-          memory: 1GB
+          memory: 4GB
 
     # only spin up the docker container for dagster if we are in production
     # otherwise we want to use uv with hot reloading using dagster dev
     profiles: [production]
 
-  wqie-container-monitor:
+  wqp-container-monitor:
     build:
       context: ./docker/container_monitor
-    container_name: wqie-container-monitor
+    container_name: wqp-container-monitor
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:

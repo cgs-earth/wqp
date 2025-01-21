@@ -88,5 +88,5 @@ uvloop==0.21.0
 watchdog==5.0.3
 watchfiles==1.0.4
 websockets==14.1
--e file:///Users/benwebb/Library/CloudStorage/OneDrive-LincolnInstituteofLandPolicy/Documents/GitHub/cgs-earth/wqie
+-e file:///Users/benwebb/Library/CloudStorage/OneDrive-LincolnInstituteofLandPolicy/Documents/GitHub/cgs-earth/wqp
 yarl==1.18.3

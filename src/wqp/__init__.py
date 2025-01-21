@@ -7,11 +7,9 @@
 # =================================================================
 
 from dagster import Definitions
-from wqie.assets import county_stations
-from wqie.jobs import process_county_stations
+from wqp.jobs import process_county_stations
 
 
 defs = Definitions(
-    assets=[county_stations],
     jobs=[process_county_stations],
 )
