@@ -10,11 +10,11 @@ COPY ./pyproject.toml /opt/dagster/app/pyproject.toml
 
 ENV DAGSTER_HOME=/opt/dagster/dagster_home/
 
-COPY ../dagster.yaml /opt/dagster/dagster_home/
+COPY ./dagster.yaml /opt/dagster/dagster_home/
 COPY src /opt/dagster/app/src
 
 RUN pip install -e .
 
-EXPOSE 3000
+COPY ./docker/entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT ["dagster", "dev", "-h", "0.0.0.0"]
+ENTRYPOINT [ "/entrypoint.sh" ] 

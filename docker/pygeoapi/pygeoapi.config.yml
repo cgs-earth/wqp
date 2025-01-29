@@ -5,11 +5,14 @@ server:
   url: ${API_URL}
   cors: true
   mimetype: "application/json; charset=UTF-8"
+  admin: true
   encoding: "utf-8"
   languages:
     - "en-US"
   pretty_print: false
-  limit: 10000
+  limits:
+      default_items: 1000
+      max_items: 10000
   map:
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     attribution: '<a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -60,6 +63,8 @@ resources:
     type: "collection"
     title: "Things"
     description: "SensorThings API Things"
+    linked-data:
+      item_template: wqp-location-oriented.j2
     keywords:
       - "thing"
       - "oregon"
@@ -80,7 +85,7 @@ resources:
         entity: Things
         id_field: "@iot.id"
         title_field: "name"
-        intralink: true
+        expand: Locations,Datastreams/ObservedProperty
     links:
       - type: "text/html"
         rel: "canonical"
