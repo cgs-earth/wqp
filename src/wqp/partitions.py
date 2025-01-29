@@ -20,7 +20,7 @@ def load_us_counties() -> List[str]:
     Load all US county codes from GeoConnex API.
     """
     url = "https://reference.geoconnex.us/collections/counties/items"
-    params = {"limit": 100}
+    params = {"limit": 5000, "properties": "statefp,countyfp", "skipGeometry": "true"}
     counties = []
     LOGGER.debug(url)
     while True:
@@ -44,3 +44,11 @@ def load_us_counties() -> List[str]:
 county_partitions = StaticPartitionsDefinition(
    load_us_counties()
 )
+
+if __name__ == "__main__":
+    from json import dumps
+    print(
+        dumps({
+            partition: "" for partition in load_us_counties()
+        })
+    )

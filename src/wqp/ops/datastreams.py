@@ -7,8 +7,9 @@ from typing import Iterable
 from dagster import get_dagster_logger
 
 from wqp.env import MONITORING_LOCATIONS_URL
-from wqp.util import make_uuid, url_join
+from wqp.util import deterministic_hash, url_join
 from wqp.mapping import MAPPING
+from wqp.models import Datastream, UnitOfMeasurement, ObservedProperty
 
 LOGGER = get_dagster_logger()
 
@@ -37,7 +38,7 @@ def fetch_datastreams(station_id: str):
         reader = DictReader(fh)
         for row in reader:
             c_string = f"{row['CharacteristicName']}-{row['MonitoringLocationIdentifier']}"  # noqa
-            _uuid = make_uuid(c_string)
+            _uuid = deterministic_hash(c_string, 32)
             row = dict(row)
             # Add code here
             try:
@@ -71,24 +72,13 @@ def yield_datastreams(datasets: dict) -> Iterable:
     for id, dataset in datasets.items():
 
         observed_property_name = dataset['CharacteristicName'].strip()
+        if observed_property_name not in MAPPING:
+            continue
 
-        observed_property_definition = ''
+        obs_property = MAPPING[observed_property_name]
         _url = 'https://cdxapps.epa.gov/oms-substance-registry-services/substance-details'  # noqa
-        _ = dataset['CharacteristicName'].replace(' ', '').lower()
-        __ = observed_property_name.replace(' ', '').lower()
-        if _ in MAPPING:
-            observed_property_definition = url_join(_url, MAPPING[_])
-        elif __ in MAPPING:
-            observed_property_definition = url_join(_url, MAPPING[__])
-        else:
-            pattern = r'[a-zA-Z0-9()\[\].-]+'
-            for word in re.findall(pattern, observed_property_name):
-                try:
-                    inner_id = MAPPING[word.lower()]
-                    observed_property_definition = url_join(_url, inner_id)
-                    break
-                except KeyError:
-                    continue
+        observed_property_definition = url_join(_url, obs_property['itn'])
+
         yield {
             '@iot.id': id,
             'name': observed_property_name + ' at ' + dataset['MonitoringLocationIdentifier'],  # noqa
@@ -96,21 +86,17 @@ def yield_datastreams(datasets: dict) -> Iterable:
             'observationType': 'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement',  # noqa
             'phenomenonTime': f'{dataset["min_year"]}-01-01T00:00:00Z/{dataset["max_year"]}-12-31T00:00:00Z', # noqa
             'unitOfMeasurement': {
-                'name': 'unknown',
-                'symbol': 'unknown',
-                'definition': 'unknown'
+                'name': obs_property['uom'],
+                'symbol': obs_property['uom'],
+                'definition': 'Unknown'
             },
             'ObservedProperty': {
+                '@iot.id': deterministic_hash(observed_property_name, 32),
                 'name': observed_property_name,
                 'description': observed_property_name,
                 'definition': observed_property_definition,
             },
-            'Sensor': {
-                "name": "Unknown",
-                "description": "Unknown",
-                "encodingType": "Unknown",
-                'metadata': 'Unknown'
-            },
+            'Sensor': {"@iot.id": 1}
         }
 
 
