@@ -47,6 +47,11 @@ resource "google_cloud_run_v2_service" "frost_service" {
         value = var.database_password
       }
 
+      env {
+        name  = "persistence_countMode"
+        value = "LIMIT_SAMPLE"
+      }
+
       volume_mounts {
         name       = "cloudsql"
         mount_path = "/cloudsql"
@@ -116,9 +121,29 @@ resource "google_cloud_run_v2_job" "frost_indexes" {
             psql -c 'VACUUM FULL ANALYZE "THINGS";'
           EOT
         ]
+        volume_mounts {
+            name = "cloudsql"
+            mount_path = "/cloudsql"
+        }
+      }
+
+      volumes {
+        name = "cloudsql"
+        cloud_sql_instance {
+          instances = [google_sql_database_instance.postgres.connection_name]
       }
     }
   }
 
   deletion_protection = false
+}
+
+resource "null_resource" "frost_indexes" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      gcloud run jobs execute postgres-index-setup --region=${var.region}
+    EOT
+  }
+
+  depends_on = [google_cloud_run_v2_job.frost_service]
 }

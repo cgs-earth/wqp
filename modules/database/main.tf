@@ -39,7 +39,6 @@ resource "google_sql_user" "sensorthings_user" {
 resource "google_cloud_run_v2_job" "postgis_setup" {
   name     = "postgis-extension-setup"
   location = var.region
-  start_execution_token = "start-once-created"
   template {
     template {
       containers {
@@ -74,10 +73,30 @@ resource "google_cloud_run_v2_job" "postgis_setup" {
           EOT
         ]
 
-        cloud_sql_instances = [google_sql_database_instance.postgres.connection_name]
+        volume_mounts {
+          name = "cloudsql"
+          mount_path = "/cloudsql"
+        }
+      }
+
+      volumes {
+        name = "cloudsql"
+        cloud_sql_instance {
+          instances = [google_sql_database_instance.postgres.connection_name]
+        }
       }
     }
   }
 
   deletion_protection = false
+}
+
+resource "null_resource" "enable_postgis" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      gcloud run jobs execute postgis-extension-setup --region=${var.region}
+    EOT
+  }
+
+  depends_on = [google_cloud_run_v2_job.postgis_setup]
 }
