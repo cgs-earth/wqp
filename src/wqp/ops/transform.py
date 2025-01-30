@@ -110,9 +110,10 @@ def publish_station_collection(stations_data: StationsData) -> bool:
             continue
 
         try:
-            mainstem, staion_url = get_mainstem_uri(station_identifier)
+            mainstem, station_url = get_mainstem_uri(station_identifier)
         except Exception:
             mainstem = ''
+            station_url = ''
             LOGGER.info(f'Failed to load mainstem for {station_identifier}')
 
         # Construct feature for SensorThings API
@@ -134,7 +135,7 @@ def publish_station_collection(stations_data: StationsData) -> bool:
             }],
             'properties': {
                 'mainstem': mainstem,
-                'station_url': staion_url,
+                'station_url': station_url,
                 'uri': url_join(GEOCONNEX_URL, 'iow/wqp', station_identifier),
                 'hu08': url_join(GEOCONNEX_URL, 'ref/hu08', station.huc_code), # noqa
                 'state': url_join(GEOCONNEX_URL, 'ref/states', station.state_code), # noqa

@@ -86,7 +86,7 @@ def yield_datastreams(datasets: dict) -> Iterable:
             'observationType': 'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement',  # noqa
             'phenomenonTime': f'{dataset["min_year"]}-01-01T00:00:00Z/{dataset["max_year"]}-12-31T00:00:00Z', # noqa
             'unitOfMeasurement': {
-                'name': obs_property['uom'],
+                'name': obs_property['uname'],
                 'symbol': obs_property['uom'],
                 'definition': 'Unknown'
             },
