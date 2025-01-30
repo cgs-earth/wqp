@@ -1,4 +1,4 @@
-FROM internetofwater/frost-server-http:develop-bw-2.6.0-SNAPSHOT
+FROM internetofwater/frost-server:develop-bw-2.6.0-SNAPSHOT
 # FROM fraunhoferiosb/frost-server:2.1
 
 ENV plugins_multiDatastream_enable=false
