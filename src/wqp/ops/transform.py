@@ -21,10 +21,12 @@ from wqp.ops.datastreams import load_datastreams
 # Logger setup
 LOGGER = get_dagster_logger()
 
+
 def upsert_collection_item(collection: str, item: Dict[str, Any]) -> bool:
     api_url = url_join(API_BACKEND_URL, collection)
     response = requests.post(api_url, json=item)
-    return response.status_code == 201 
+    return response.status_code == 201
+
 
 def station_exists(station_id: str) -> bool:
     """
@@ -106,7 +108,8 @@ def publish_station_collection(stations_data: StationsData) -> bool:
             LOGGER.info(f'No datastreams for {station_identifier}')
             continue
         except Exception:
-            LOGGER.warning(f'Failed to load datastreams for {station_identifier}')
+            msg = f'Failed to load datastreams for {station_identifier}'
+            LOGGER.warning(msg)
             continue
 
         try:

@@ -34,6 +34,7 @@ def process_county_stations():
     """Job to process stations for a single county partition."""
     fetch_and_process_stations()
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python jobs.py <county1> <county2> ...")

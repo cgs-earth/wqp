@@ -1,7 +1,15 @@
+# =================================================================
+#
+# Authors: Ben Webb <bwebb@lincolninst.edu>
+#
+# Copyright (c) 2025 Lincoln Institute of Land Policy
+#
+# Licensed under the MIT License.
+#
+# =================================================================
 
 from csv import DictReader
 from io import StringIO
-import re
 from requests import Session
 from typing import Iterable
 from dagster import get_dagster_logger
@@ -9,7 +17,6 @@ from dagster import get_dagster_logger
 from wqp.env import MONITORING_LOCATIONS_URL
 from wqp.util import deterministic_hash, url_join
 from wqp.mapping import MAPPING
-from wqp.models import Datastream, UnitOfMeasurement, ObservedProperty
 
 LOGGER = get_dagster_logger()
 

@@ -20,7 +20,9 @@ def load_us_counties() -> List[str]:
     Load all US county codes from GeoConnex API.
     """
     url = "https://reference.geoconnex.us/collections/counties/items"
-    params = {"limit": 5000, "properties": "statefp,countyfp", "skipGeometry": "true"}
+    params = {"limit": 5000,
+              "properties": "statefp,countyfp",
+              "skipGeometry": "true"}
     counties = []
     LOGGER.debug(url)
     while True:
