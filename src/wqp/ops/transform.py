@@ -36,7 +36,7 @@ def station_exists(station_id: str) -> bool:
     :return: True if the station exists, False otherwise.
     """
     api_url = url_join(API_BACKEND_URL, f"Things('{station_id}')")
-    response = requests.get(api_url)
+    response = requests.get(api_url, params={"$select": "@iot.id"})
     return response.status_code == 200
 
 
