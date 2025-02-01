@@ -89,15 +89,6 @@ def publish_station_collection(stations_data: StationsData) -> bool:
     """
     # Iterate over the transformed stations data
     sta_things = []
-    sensor_url = url_join(API_BACKEND_URL, "Sensors")
-    sensor = {
-        '@iot.id': 1,
-        'name': 'Unknown',
-        'description': 'Unknown',
-        'encodingType': 'Unknown',
-        'metadata': 'Unknown'
-    }
-    requests.post(sensor_url, json=sensor)
     for station in stations_data.stations:
         station_identifier = station.station_id
 

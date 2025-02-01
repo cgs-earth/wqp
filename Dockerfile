@@ -13,8 +13,6 @@ ENV DAGSTER_HOME=/opt/dagster/dagster_home/
 COPY ./dagster.yaml /opt/dagster/dagster_home/
 COPY src /opt/dagster/app/src
 
-RUN pip install -e .
+RUN pip install -e /opt/dagster/app
 
-COPY ./docker/entrypoint.sh /entrypoint.sh
-
-ENTRYPOINT [ "/entrypoint.sh" ] 
+ENTRYPOINT [ "wqp", "jobs", "process" ] 

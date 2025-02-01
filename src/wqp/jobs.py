@@ -8,7 +8,9 @@
 #
 # =================================================================
 
+import click
 from dagster import job, op, build_op_context
+import os
 import sys
 
 from wqp.ops.fetch import fetch_station_metadata
@@ -35,20 +37,37 @@ def process_county_stations():
     fetch_and_process_stations()
 
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python jobs.py <county1> <county2> ...")
-        sys.exit(1)
+def process_county(county: str):
+    context = build_op_context(partition_key=county)
+    result = fetch_and_process_stations(context)
+    if result:
+        print(f"Successfully processed county: {county}")
+    else:
+        print(f"Failed to process county: {county}")
 
-    counties = sys.argv[1:]
 
-    for county in counties:
-        print(f"Starting job for county: {county}")
+@click.group()
+def jobs():
+    """Jobs management"""
+    pass
 
-        context = build_op_context(partition_key=county)
-        result = fetch_and_process_stations(context)
 
-        if result:
-            print(f"Successfully processed county: {county}")
-        else:
-            print(f"Failed to process county: {county}")
+@click.command()
+@click.pass_context
+@click.argument("counties", required=False, nargs=-1)
+def process(ctx, counties):
+    TASK_INDEX = int(os.environ.get("CLOUD_RUN_TASK_INDEX", -1))
+    if list(counties):
+        click.echo(f'Counties: {", ".join(counties)}')
+        for county in list(counties):
+            process_county(county=county)
+
+    elif TASK_INDEX >= 0:
+        county = county_partitions.get_partition_keys()[TASK_INDEX]
+        click.echo(f'County: {county}')
+        process_county(county=county)
+
+    else:
+        raise RuntimeError('No counties found to process')
+
+jobs.add_command(process)
