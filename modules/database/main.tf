@@ -9,8 +9,7 @@ resource "google_sql_database_instance" "postgres" {
     disk_autoresize = true
 
     ip_configuration {
-      ipv4_enabled = false
-      enable_private_path_for_google_cloud_services = true
+      ipv4_enabled = true
     }
 
     database_flags {

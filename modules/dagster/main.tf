@@ -15,13 +15,15 @@ resource "google_cloud_run_v2_job" "dagster_job" {
   name     = "wqp-dagster-job"
   location = var.region
   deletion_protection = false
+  launch_stage = "BETA"
 
   template {
+    task_count  = length(keys(var.partitions))
+    parallelism = 10
+
     template {
       timeout     = "172800s"
       max_retries = 1
-      task_count  = length(keys(var.partitions))
-      parallelism = 10
 
       containers {
         image = "${var.region}-docker.pkg.dev/${var.project_id}/wqp-docker-repo/dagster:latest"
