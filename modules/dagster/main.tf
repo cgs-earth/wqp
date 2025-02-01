@@ -53,7 +53,7 @@ resource "google_cloud_run_v2_job" "dagster_job" {
 resource "null_resource" "post_sensor" {
   provisioner "local-exec" {
     command = <<EOT
-      curl -X POST "http://localhost:8888/FROST-Server/v1.1/Sensors" \
+      curl -X POST "${var.frost_uri}/FROST-Server/v1.1/Sensors" \
            -H "Content-Type: application/json" \
            -d '{
                 "@iot.id": 1,
@@ -77,5 +77,5 @@ resource "null_resource" "invoke_partition_jobs" {
     EOT
   }
 
-  depends_on = [null_resource.post_sensor]
+  depends_on = [null_resource.post_sensor, google_cloud_run_v2_job.dagster_job]
 }
