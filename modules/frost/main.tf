@@ -6,7 +6,7 @@ resource "null_resource" "build_frost" {
         --platform linux/amd64 \
         --push \
         -t ${var.region}-docker.pkg.dev/${var.project_id}/wqp-docker-repo/frost-server:latest \
-        ./docker/frost
+        ./modules/frost
     EOT
   }
 }
@@ -130,7 +130,8 @@ resource "google_cloud_run_v2_job" "frost_indexes" {
       volumes {
         name = "cloudsql"
         cloud_sql_instance {
-          instances = [google_sql_database_instance.postgres.connection_name]
+          instances = [var.database_instance.connection_name]
+        }
       }
     }
   }
@@ -145,5 +146,5 @@ resource "null_resource" "frost_indexes" {
     EOT
   }
 
-  depends_on = [google_cloud_run_v2_job.frost_service]
+  depends_on = [google_cloud_run_v2_job.frost_indexes]
 }

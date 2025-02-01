@@ -2,7 +2,7 @@ services:
   wqp-frost:
     container_name: wqp-frost
     build:
-      context: ./docker/frost
+      context: ./modules/frost
       dockerfile: Dockerfile
     # platform: linux/amd64
     environment:
@@ -19,7 +19,7 @@ services:
   wqp-database:
     container_name: wqp-database
     build:
-      context: ./docker/database
+      context: ./modules/database
     environment:
       - POSTGRES_DB=sensorthings
       - POSTGRES_USER=sensorthings
@@ -30,7 +30,7 @@ services:
   wqp-pygeoapi:
     container_name: wqp-pygeoapi
     build:
-      context: docker/pygeoapi
+      context: modules/pygeoapi
     depends_on:
       - wqp-frost
     environment:
@@ -41,7 +41,7 @@ services:
   wqp-proxy:
     container_name: wqp-proxy
     build:
-      context: docker/nginx
+      context: modules/nginx
     restart: always
     ports:
       - 8888:80
@@ -59,21 +59,6 @@ services:
         limits:
           cpus: "7"
           memory: 4GB
-
-  wqp-container-monitor:
-    build:
-      context: ./docker/container_monitor
-    container_name: wqp-container-monitor
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - SLACK_BOT_TOKEN
-      # NOTE, no # needed here
-      - SLACK_CHANNEL_NAME=cgs-iow-bots
-      - SLACK_BOT_NAME=Water Quality Interoperability Experiment bot
-      - SLACK_BOT_AVATAR=https://cida.usgs.gov/wsgi/ngwmn_ui/static/img/provider_logos/owrd_logo.50b3448a.png
-    # Don't monitor containers in the dev env or CI/CD
-    profiles: [production]
 
 volumes:
   postgis_volume:

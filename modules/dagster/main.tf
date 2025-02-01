@@ -18,7 +18,10 @@ resource "google_cloud_run_v2_job" "dagster_job" {
 
   template {
     template {
-      timeout = "86400s"
+      timeout     = "172800s"
+      max_retries = 1
+      task_count  = length(keys(var.partitions))
+      parallelism = 10
 
       containers {
         image = "${var.region}-docker.pkg.dev/${var.project_id}/wqp-docker-repo/dagster:latest"
@@ -45,16 +48,32 @@ resource "google_cloud_run_v2_job" "dagster_job" {
   depends_on = [null_resource.build_dagster]
 }
 
-resource "null_resource" "invoke_partition_jobs" {
-  for_each = { for idx, partition in chunklist(keys(var.partitions), 500) : idx => partition }
-
+resource "null_resource" "post_sensor" {
   provisioner "local-exec" {
-    command = <<-EOT
-      gcloud run jobs execute wqp-dagster-job \
-        --region=${var.region} \
-        --args="${join(" ", each.value)}"
+    command = <<EOT
+      curl -X POST "http://localhost:8888/FROST-Server/v1.1/Sensors" \
+           -H "Content-Type: application/json" \
+           -d '{
+                "@iot.id": 1,
+                "name": "Unknown",
+                "description": "Unknown",
+                "encodingType": "Unknown",
+                "metadata": "Unknown"
+           }'
     EOT
   }
 
   depends_on = [google_cloud_run_v2_job.dagster_job]
+}
+
+resource "null_resource" "invoke_partition_jobs" {
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      gcloud run jobs execute wqp-dagster-job \
+        --region=${var.region}
+    EOT
+  }
+
+  depends_on = [null_resource.post_sensor]
 }
