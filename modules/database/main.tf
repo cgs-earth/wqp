@@ -5,7 +5,7 @@ resource "google_sql_database_instance" "postgres" {
   region           = var.region
 
   settings {
-    tier = "db-g1-small"
+    tier            = "db-custom-1-3840"
     disk_autoresize = true
 
     ip_configuration {
