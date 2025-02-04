@@ -11,7 +11,7 @@
 import click
 from dagster import job, op, build_op_context
 import os
-import sys
+
 
 from wqp.ops.fetch import fetch_station_metadata
 from wqp.ops.transform import transform_stations, publish_station_collection
@@ -69,5 +69,6 @@ def process(ctx, counties):
 
     else:
         raise RuntimeError('No counties found to process')
+
 
 jobs.add_command(process)

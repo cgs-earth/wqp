@@ -18,10 +18,12 @@ defs = Definitions(
     jobs=[process_county_stations],
 )
 
+
 @click.group()
 @click.version_option(version=__version__)
 def cli():
     """WQP"""
     pass
+
 
 cli.add_command(jobs)
