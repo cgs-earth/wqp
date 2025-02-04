@@ -1,8 +1,11 @@
 # Provider configuration
 provider "google" {
-  project             = var.project_id
   region              = var.region
   credentials         = file(var.credentials)
+}
+
+locals {
+  credentials = jsondecode(file(var.credentials))
 }
 
 # Enable required APIs
@@ -30,7 +33,7 @@ data "external" "generate_partitions" {
 module "database" {
   source = "./modules/database"
   
-  project_id         = var.project_id
+  project_id         = local.credentials.project_id
   region             = var.region
   database_password  = var.database_password
   
@@ -40,9 +43,10 @@ module "database" {
 module "frost" {
   source = "./modules/frost"
   
-  project_id         = var.project_id
+  project_id         = local.credentials.project_id
   region             = var.region
   wqp_url            = var.wqp_url
+  service_account    = local.credentials.client_email
   database_instance  = module.database.instance
   database_name      = module.database.database_name
   database_user      = module.database.user_name
@@ -54,7 +58,7 @@ module "frost" {
 module "dagster" {
   source = "./modules/dagster"
   
-  project_id         = var.project_id
+  project_id         = local.credentials.project_id
   region             = var.region
   frost_uri          = module.frost.service_uri
   slack_bot_token    = var.slack_bot_token
