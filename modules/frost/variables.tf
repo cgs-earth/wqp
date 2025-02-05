@@ -33,3 +33,8 @@ variable "database_password" {
   type        = string
   sensitive   = true
 }
+
+variable "service_account" {
+  description = "Service account email"
+  type        = string
+}

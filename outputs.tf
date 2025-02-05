@@ -6,7 +6,7 @@ output "repository_name" {
 
 output "frost_service_url" {
   description = "The URL of the FROST server"
-  value       = module.frost.service_url
+  value       = module.frost.service_uri
 }
 
 output "database_instance" {

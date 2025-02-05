@@ -23,7 +23,7 @@ resource "google_cloud_run_v2_service" "frost_service" {
 
       resources {
         limits = {
-          memory = "4Gi"
+          memory = "1Gi"
         }
       }
       
@@ -66,17 +66,21 @@ resource "google_cloud_run_v2_service" "frost_service" {
     }
   }
 
+  scaling {
+    min_instance_count = 1
+  }
+
   deletion_protection = false
   depends_on = [null_resource.build_frost]
 }
 
-resource "google_cloud_run_service_iam_member" "public_access" {
+resource "google_cloud_run_v2_service_iam_member" "public_access" {
   location = google_cloud_run_v2_service.frost_service.location
-  service  = google_cloud_run_v2_service.frost_service.name
+  project  = google_cloud_run_v2_service.frost_service.project
+  name     = google_cloud_run_v2_service.frost_service.name
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
-
 
 # PostgreSQL Index Job
 resource "google_cloud_run_v2_job" "frost_indexes" {
